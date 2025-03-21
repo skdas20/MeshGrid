@@ -1,0 +1,15 @@
+{
+  "name": "line-game-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for the Line Game with multiplayer and AI support",
+  "scripts": {
+    "dev": "npx http-server public -p 3000",
+    "update-backend": "node update-backend-url.js"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.8.0"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+} 

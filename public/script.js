@@ -1,5 +1,5 @@
 // Initialize Socket.IO connection
-const socket = io();
+const socket = io('https://web-production-f35ee.up.railway.app');
 
 // Game state
 let gameState = {
