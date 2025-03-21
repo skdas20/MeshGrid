@@ -59,7 +59,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup game
     createDotGrid();
     setupEventListeners();
+    
+    // Add window resize event listener
+    window.addEventListener('resize', debounce(function() {
+        // Recreate the grid when window is resized
+        createDotGrid();
+    }, 250));
 });
+
+// Debounce function to limit how often a function can be called
+function debounce(func, wait) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            func.apply(context, args);
+        }, wait);
+    };
+}
 
 // Button Event Listeners
 document.getElementById('ai-game-btn').addEventListener('click', createAIGame);
@@ -163,9 +182,17 @@ function changeBackgroundVideo(videoName) {
 function createDotGrid() {
     gridContainer.innerHTML = '';
     const gridSize = 5;
-    const cellSize = 65;
+    
+    // Determine cell size based on screen width
+    let cellSize = 65; // Default for desktop
+    
+    if (window.innerWidth <= 480) {
+        cellSize = 40;
+    } else if (window.innerWidth <= 768) {
+        cellSize = 50;
+    }
+    
     const dotSize = 14; // Dot size in pixels
-    const dotOffset = dotSize / 2; // Half the dot size for centering
     
     // Create potential lines first (shadows)
     createPotentialLines(gridSize, cellSize);
@@ -191,6 +218,20 @@ function createDotGrid() {
 function createPotentialLines(gridSize, cellSize) {
     const dotSize = 14; // Dot size in pixels
     
+    // Determine line dimensions based on screen width
+    let lineLength, lineThickness;
+    
+    if (window.innerWidth <= 480) {
+        lineLength = 26;
+        lineThickness = 5;
+    } else if (window.innerWidth <= 768) {
+        lineLength = 36;
+        lineThickness = 5;
+    } else {
+        lineLength = 51;
+        lineThickness = 6;
+    }
+    
     // Create horizontal potential lines
     for (let row = 0; row < gridSize; row++) {
         for (let col = 0; col < gridSize - 1; col++) {
@@ -202,8 +243,8 @@ function createPotentialLines(gridSize, cellSize) {
             line.dataset.col2 = col + 1;
             
             // Position line - centered between dots
-            const centerY = row * cellSize + cellSize/2 - 2.5;
-            const startX = col * cellSize + cellSize/2 + 7;
+            const centerY = row * cellSize + cellSize/2 - lineThickness/2;
+            const startX = col * cellSize + cellSize/2 + dotSize/2;
             
             line.style.top = `${centerY}px`;
             line.style.left = `${startX}px`;
@@ -244,8 +285,8 @@ function createPotentialLines(gridSize, cellSize) {
             line.dataset.col2 = col;
             
             // Position line - centered between dots
-            const centerX = col * cellSize + cellSize/2 - 2.5;
-            const startY = row * cellSize + cellSize/2 + 7;
+            const centerX = col * cellSize + cellSize/2 - lineThickness/2;
+            const startY = row * cellSize + cellSize/2 + dotSize/2;
             
             line.style.top = `${startY}px`;
             line.style.left = `${centerX}px`;
@@ -295,74 +336,100 @@ function handleLineClick(row1, col1, row2, col2) {
 
 // Draw a line between two dots
 function drawLine(row1, col1, row2, col2, isPlayer = true) {
-    const cellSize = 65;
-    const line = document.createElement('div');
+    // Determine cell size based on screen width
+    let cellSize = 65; // Default for desktop
+    let lineThickness = 6;
     
-    // Determine line direction
-    const isHorizontal = row1 === row2;
-    
-    if (isHorizontal) {
-        line.classList.add('line', 'horizontal');
-        // Position horizontal line
-        const centerY = row1 * cellSize + cellSize/2 - 3;
-        const startX = Math.min(col1, col2) * cellSize + cellSize/2 + 7;
-        
-        line.style.top = `${centerY}px`;
-        line.style.left = `${startX}px`;
-    } else {
-        line.classList.add('line', 'vertical');
-        // Position vertical line
-        const centerX = col1 * cellSize + cellSize/2 - 3;
-        const startY = Math.min(row1, row2) * cellSize + cellSize/2 + 7;
-        
-        line.style.top = `${startY}px`;
-        line.style.left = `${centerX}px`;
+    if (window.innerWidth <= 480) {
+        cellSize = 40;
+        lineThickness = 5;
+    } else if (window.innerWidth <= 768) {
+        cellSize = 50;
+        lineThickness = 5;
     }
     
-    // Set line color/class based on player
+    const dotSize = 14;
+    
+    // Create line element
+    const line = document.createElement('div');
+    line.classList.add('line');
+    
+    // Add player/opponent class for styling
     if (isPlayer) {
         line.classList.add('player-line');
     } else {
         line.classList.add('opponent-line');
     }
-
-    // Add to grid with animation
-    line.style.opacity = '0';
-    gridContainer.appendChild(line);
     
-    // Animate line appearance
-    setTimeout(() => {
-        line.style.opacity = '1';
-    }, 10);
+    // Determine if horizontal or vertical line
+    const isHorizontal = row1 === row2;
+    
+    if (isHorizontal) {
+        line.classList.add('horizontal');
+        
+        // Calculate line position
+        const centerY = row1 * cellSize + cellSize/2 - lineThickness/2;
+        const startX = Math.min(col1, col2) * cellSize + cellSize/2 + dotSize/2;
+        
+        line.style.top = `${centerY}px`;
+        line.style.left = `${startX}px`;
+    } else {
+        line.classList.add('vertical');
+        
+        // Calculate line position
+        const centerX = col1 * cellSize + cellSize/2 - lineThickness/2;
+        const startY = Math.min(row1, row2) * cellSize + cellSize/2 + dotSize/2;
+        
+        line.style.top = `${startY}px`;
+        line.style.left = `${centerX}px`;
+    }
+    
+    // Add to grid
+    gridContainer.appendChild(line);
     
     // Play sound effect
     playSound(lineSound);
     
-    return line;
+    // Check if this line completes a square
+    // This is handled by the server
 }
 
 // Draw a square
 function drawSquare(row, col, isPlayer) {
-    const cellSize = 65;
+    // Determine cell size based on screen width
+    let cellSize = 65; // Default for desktop
+    
+    if (window.innerWidth <= 480) {
+        cellSize = 40;
+    } else if (window.innerWidth <= 768) {
+        cellSize = 50;
+    }
+    
+    // Create square element
     const square = document.createElement('div');
     square.classList.add('square');
     
-    // Set square owner
+    // Add player/opponent class for styling
     if (isPlayer) {
         square.classList.add('player');
     } else {
-        square.classList.add(gameState.isAiGame ? 'ai' : 'opponent');
+        square.classList.add('opponent');
     }
     
-    // Position square - precisely aligned with grid cells
-    square.style.top = `${row * cellSize + 12}px`;
-    square.style.left = `${col * cellSize + 12}px`;
-    square.style.width = `${cellSize - 11}px`;
-    square.style.height = `${cellSize - 11}px`;
+    // Calculate square position
+    const top = row * cellSize;
+    const left = col * cellSize;
     
+    // Set square size and position
+    square.style.width = `${cellSize}px`;
+    square.style.height = `${cellSize}px`;
+    square.style.top = `${top}px`;
+    square.style.left = `${left}px`;
+    
+    // Add to grid
     gridContainer.appendChild(square);
     
-    // Play square completion sound
+    // Play sound effect
     playSound(squareSound);
 }
 

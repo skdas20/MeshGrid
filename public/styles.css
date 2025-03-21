@@ -95,6 +95,7 @@ h1 {
     margin-bottom: 40px;
     background: linear-gradient(45deg, #ff9a9e, #67d3c2);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     letter-spacing: 2px;
@@ -351,6 +352,7 @@ button:active {
     font-weight: bold;
     background: linear-gradient(45deg, #ff9a9e, #67d3c2);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
@@ -388,6 +390,7 @@ button:active {
 @media (max-width: 768px) {
     .screen {
         padding: 25px;
+        max-width: 90%;
     }
     
     h1 {
@@ -395,29 +398,116 @@ button:active {
     }
     
     .grid-container {
-        grid-template-columns: repeat(5, 55px);
-        grid-template-rows: repeat(5, 55px);
+        grid-template-columns: repeat(5, 50px);
+        grid-template-rows: repeat(5, 50px);
+        padding: 10px;
     }
     
     .line.horizontal {
-        width: 41px;
+        width: 36px;
     }
     
     .line.vertical {
-        height: 41px;
+        height: 36px;
     }
     
     .square {
-        width: 55px;
-        height: 55px;
+        width: 50px;
+        height: 50px;
     }
     
     .potential-line.horizontal {
-        width: 41px;
+        width: 36px;
     }
     
     .potential-line.vertical {
-        height: 41px;
+        height: 36px;
+    }
+    
+    .game-content-wrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .hash-container {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .hash-symbol {
+        width: 80px;
+        height: 80px;
+        font-size: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .screen {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 32px;
+        margin-bottom: 30px;
+    }
+    
+    h2 {
+        font-size: 26px;
+    }
+    
+    .grid-container {
+        grid-template-columns: repeat(5, 40px);
+        grid-template-rows: repeat(5, 40px);
+        padding: 8px;
+    }
+    
+    .line.horizontal {
+        width: 26px;
+        height: 5px;
+    }
+    
+    .line.vertical {
+        height: 26px;
+        width: 5px;
+    }
+    
+    .square {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .potential-line.horizontal {
+        width: 26px;
+    }
+    
+    .potential-line.vertical {
+        height: 26px;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .player-info, .score-display {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    
+    .current-turn {
+        font-size: 16px;
+        padding: 8px 16px;
+    }
+    
+    .score {
+        font-size: 16px;
+    }
+    
+    button {
+        padding: 12px 24px;
+        font-size: 16px;
     }
 }
 
