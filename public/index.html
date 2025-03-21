@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Line Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Background Video -->
+    <video id="bg-video" autoplay muted loop>
+        <source src="assets/bg.mp4" type="video/mp4">
+    </video>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <video id="loading-video" autoplay>
+            <source src="assets/loading.mp4" type="video/mp4">
+        </video>
+    </div>
+    
+    <!-- Audio Elements -->
+    <audio id="line-sound" src="assets/ech.mp3" preload="auto"></audio>
+    <audio id="square-sound" src="assets/wow.wav" preload="auto"></audio>
+    <audio id="win-sound" src="assets/win.mp3" preload="auto"></audio>
+
+    <!-- Game Container -->
+    <div class="game-container hidden" id="main-container">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen">
+            <h1>Line Game</h1>
+            <div class="button-container">
+                <button id="ai-game-btn">Play with AI</button>
+                <button id="create-game-btn">Create Game</button>
+                <button id="join-game-btn">Join Game</button>
+            </div>
+        </div>
+
+        <!-- Room Code Screen -->
+        <div id="room-code-screen" class="screen hidden">
+            <h2>Your Room Code</h2>
+            <div id="room-code-display" class="code-display"></div>
+            <p>Share this code with your friend to join the game</p>
+            <p id="waiting-message">Waiting for player to join...</p>
+        </div>
+
+        <!-- Join Game Screen -->
+        <div id="join-game-screen" class="screen hidden">
+            <h2>Enter Room Code</h2>
+            <input type="text" id="room-code-input" maxlength="5" placeholder="Enter code">
+            <button id="submit-code-btn">Join Game</button>
+            <p id="join-error" class="error-message hidden">Invalid room code</p>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen hidden">
+            <div class="game-header">
+                <div class="player-info">
+                    <div id="current-turn" class="current-turn">Your Turn</div>
+                    <div class="score" id="player-score">You: <span>0</span></div>
+                </div>
+                <div class="score-display">
+                    <div class="score" id="opponent-score">Opponent: <span>0</span></div>
+                </div>
+                <button id="exit-button" class="menu-button">Exit Game</button>
+            </div>
+            
+            <div class="game-content-wrapper">
+                <div id="grid-container" class="grid-container"></div>
+                
+                <div class="hash-container">
+                    <div class="hash-title">Lead Hash</div>
+                    <div class="hash-symbol">#</div>
+                </div>
+            </div>
+            
+            <button id="quit-button">Quit Game</button>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="screen hidden">
+            <h2>Game Over</h2>
+            <div id="final-score" class="final-score"></div>
+            <div id="result-message" class="result-message"></div>
+            <button id="play-again-btn">Play Again</button>
+            <button id="return-home-btn">Return Home</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
