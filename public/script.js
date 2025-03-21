@@ -758,6 +758,6 @@ function startGame() {
     if (gameState.isAiGame) {
         document.querySelector('#opponent-score').innerHTML += '<span>🤫</span>';
     } else {
-        document.querySelector('#opponent-score').innerHTML += '<span>0</span>';
+        document.querySelector('#opponent-score').innerHTML += '<span>🤫</span>';
     }
 }
