@@ -1,5 +1,40 @@
+// Socket connection status
+let socketConnected = false;
+
 // Initialize Socket.IO connection
-const socket = io('https://web-production-f35ee.up.railway.app');
+const socket = io('https://web-production-f35ee.up.railway.app', {
+    reconnectionAttempts: 3,
+    timeout: 10000,
+    transports: ['websocket', 'polling']
+});
+
+// Socket connection success
+socket.on('connect', () => {
+    console.log('Socket connected successfully');
+    socketConnected = true;
+});
+
+// Socket connection error handling
+socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+    // Ensure game UI still loads despite connection issues
+    setTimeout(() => {
+        if (loadingScreen && loadingScreen.style.display !== 'none') {
+            showMainInterface();
+        }
+    }, 6000); // Slightly longer than the loading video timeout
+});
+
+// Socket timeout handling
+socket.on('connect_timeout', () => {
+    console.error('Connection timeout');
+    // Ensure game UI still loads despite timeout
+    setTimeout(() => {
+        if (loadingScreen && loadingScreen.style.display !== 'none') {
+            showMainInterface();
+        }
+    }, 6000);
+});
 
 // Game state
 let gameState = {
@@ -43,14 +78,7 @@ const winSound = document.getElementById('win-sound');
 document.addEventListener('DOMContentLoaded', function() {
     // Setup loading screen
     setTimeout(() => {
-        loadingScreen.classList.add('fade-out');
-        
-        // Show main container after the loading screen fades out
-        setTimeout(() => {
-            loadingScreen.classList.add('hidden');
-            mainContainer.classList.remove('hidden');
-            mainContainer.classList.add('show');
-        }, 1000);
+        showMainInterface();
     }, 5000); // Show main menu after 5 seconds
 
     // Setup game
@@ -68,13 +96,13 @@ document.getElementById('return-home-btn').addEventListener('click', returnHome)
 
 // Create a game with AI
 function createAIGame() {
-    socket.emit('createAIGame');
+    makeGameRequest('createAIGame');
     gameState.isAiGame = true;
 }
 
 // Create a new multiplayer game
 function createGame() {
-    socket.emit('createGame');
+    makeGameRequest('createGame');
 }
 
 // Show the join game screen
@@ -91,7 +119,7 @@ function joinGame() {
         return;
     }
     
-    socket.emit('joinGame', { roomCode });
+    makeGameRequest('joinGame', { roomCode });
 }
 
 // Play again after game is over
@@ -284,9 +312,13 @@ function handleLineClick(row1, col1, row2, col2) {
     };
     
     // Send move to server
-    socket.emit('move', {
+    makeGameRequest('move', {
         roomCode: gameState.roomCode,
-        line: line
+        playerId: gameState.playerId,
+        move: {
+            from: { row: row1, col: col1 },
+            to: { row: row2, col: col2 }
+        }
     });
 }
 
@@ -403,9 +435,13 @@ function handleDotClick(e) {
             };
             
             // Send move to server
-            socket.emit('move', {
+            makeGameRequest('move', {
                 roomCode: gameState.roomCode,
-                line: line
+                playerId: gameState.playerId,
+                move: {
+                    from: { row: selectedRow, col: selectedCol },
+                    to: { row: row, col: col }
+                }
             });
             
             // Clear selection
@@ -689,5 +725,35 @@ function startGame() {
         document.querySelector('#opponent-score').innerHTML += '<span>🤫</span>';
     } else {
         document.querySelector('#opponent-score').innerHTML += '<span>0</span>';
+    }
+}
+
+// Function to show main interface (will be called after loading video or socket timeout)
+function showMainInterface() {
+    if (loadingScreen) loadingScreen.style.opacity = 0;
+    setTimeout(() => {
+        if (loadingScreen) loadingScreen.style.display = 'none';
+        if (mainContainer) mainContainer.style.display = 'block';
+    }, 1000);
+}
+
+// Function to handle API requests with fallback
+function makeGameRequest(event, data, callback) {
+    if (socketConnected) {
+        // If socket is connected, use it
+        socket.emit(event, data, callback);
+    } else {
+        // If socket is not connected, use fetch API with CORS proxy
+        console.log('Using HTTP fallback for request:', event);
+        const endpoint = `/api/${event.replace('game:', '')}`;
+        makeApiRequest(endpoint, 'POST', data)
+            .then(response => {
+                if (callback && typeof callback === 'function') {
+                    callback(response);
+                }
+            })
+            .catch(error => {
+                console.error('Fallback request failed:', error);
+            });
     }
 }

@@ -4,8 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Line Game</title>
+    <meta name="description" content="A multiplayer line game with AI opponent">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a192f">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <!-- Socket.IO client script -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <!-- CORS proxy helper script -->
+    <script src="cors-proxy.js"></script>
 </head>
 <body>
     <!-- Background Video -->
@@ -88,8 +96,12 @@
         </div>
     </div>
 
+    <!-- 3D Hash -->
+    <div class="hash-container">
+        <div class="hash">#</div>
+    </div>
+
     <!-- Scripts -->
-    <script src="/socket.io/socket.io.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
